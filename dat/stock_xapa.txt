@@ -1,0 +1,59 @@
+Stock
+--------------------------------
+CodiStock: enter PK autoincrement
+CodiXapa: enter FK
+Longitud: enter
+Amplada: enter
+Quantitat: enter
+Estat: text (ACTIVA / INACTIVA)
+Data: date
+
+
+Xapes
+--------------------------------
+CodiXapa: enter PK autoincrement
+CodiMaterial: enter FK
+CodiQualitat: enter FK
+CodiAcabat: enter FK
+Espesor: num (1dec)
+PreuKg: num (2dec)
+Data: date
+	UNIQUE (CodiMaterial, CodiQualitat,
+		CodiAcabat, Espesor)
+
+Materials
+--------------------------------
+CodiMaterial: enter PK autoincrement
+Material: varchar (20) UNIQUE
+Densitat: num (1dec)
+
+
+Qualitats
+--------------------------------
+CodiQualitat: enter PK autoincrement
+CodiMaterial: enter FK
+Qualitat: varchar (25)
+	UNIQUE (CodiMaterial, Qualitat)
+
+
+Acabats
+--------------------------------
+CodiAcabat: enter PK autoincrement
+CodiMaterial: enter FK
+Acabat: varchar (25)
+	UNIQUE (CodiMaterial, Acabat)
+
+
+Materials ---< Qualitats
+     ¦             ^
+     ¦             ¦
+     +------< Acabats
+
+Qualitats -+
+           +---< Xapes >--- Acabats
+Materials -+
+       ¦
+       +--- Espessor + PreuKg
+
+Xapes ---< Stock
+

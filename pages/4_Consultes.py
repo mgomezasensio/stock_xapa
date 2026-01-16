@@ -2,6 +2,8 @@ from datetime import date
 import streamlit as st
 import sqlite3
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
 
 st.set_page_config(page_title="Consultes")
 st.sidebar.title("Consultes")
@@ -37,11 +39,7 @@ def obtenir_espesors(DB_FILE):
     conexio.close()
     return espesors
 
-
-# ---- FUNCIONS PANTALLES PROGRAMA ----
-
-def pantalla_consulta_stock(DB_FILE, opcio):
-    st.title(opcio)
+def obtenir_df(DB_FILE):
     col1, col2 = st.columns(2)
     with col1:
         materials = obtenir_materials(DB_FILE)
@@ -69,7 +67,7 @@ def pantalla_consulta_stock(DB_FILE, opcio):
                                index=None,
                                placeholder="Espesor...")
     sql_txt = """
-        SELECT s.CodiStock, m.Material, q.Qualitat, a.Acabat, x.Espesor, s.Longitud, s.Amplada, s.Quantitat
+        SELECT s.CodiStock, m.Material, q.Qualitat, a.Acabat, x.Espesor, s.Longitud, s.Amplada, s.Quantitat, m.Densitat, x.PreuKg
         FROM Stock as S
         JOIN Xapes as x ON x.CodiXapa = s.CodiXapa
         JOIN Materials as m ON m.CodiMaterial = x.CodiMaterial
@@ -95,9 +93,18 @@ def pantalla_consulta_stock(DB_FILE, opcio):
     cursor = conexio.cursor()
     cursor.execute(sql_txt, parametres)
     consultes = cursor.fetchall()
+    conexio.close()
     df = pd.DataFrame(consultes)
+    return df
+
+# ---- FUNCIONS PANTALLES PROGRAMA ----
+
+def pantalla_consulta_stock(DB_FILE, opcio):
+    st.title(opcio)
+    df = obtenir_df(DB_FILE)
     if not df.empty:
-        df.columns = ["Codi", "Material", "Qualitat", "Acabat", "Espesor", "Longitud", "Amplada", "Quantitat"]
+        df.columns = ["Codi", "Material", "Qualitat", "Acabat", "Espesor", "Longitud", "Amplada", "Quantitat", "Densitat", "PreuKg"]
+        df = df[["Codi", "Material", "Qualitat", "Acabat", "Espesor", "Longitud", "Amplada", "Quantitat"]]
     else:
         st.error("No s'ha trobat cap resultat amb aquests filtres")
     st.dataframe(df, hide_index=True)
@@ -105,11 +112,24 @@ def pantalla_consulta_stock(DB_FILE, opcio):
     
 def pantalla_consulta_valor_stock(DB_FILE, opcio):
     st.title(opcio)
-    st.info(""""Aquí s'haurà d'introduir un material, una qualitat, un acabat i un espesor
-            i ens mostrarà el preu d'aquesta xapa""")
-    pass
+    df = obtenir_df(DB_FILE)
+    if not df.empty:
+        df.columns = ["Codi", "Material", "Qualitat", "Acabat", "Espesor", "Longitud", "Amplada", "Quantitat", "Densitat", "PreuKg"]
+        df['Pes'] = round((df.Longitud/1000) * (df.Amplada/1000) * df.Espesor * df.Densitat * df.Quantitat, 2)
+        df['Valor'] = round(df.Pes * df.PreuKg, 2)
+    else:
+        st.error("No s'ha trobat cap resultat amb aquests filtres")
+        return
+    
+    st.metric("Valor (€)", f"{round(df.Valor.sum(), 2)} €")
+
+    fig = px.histogram(df, x='Material', y='Valor', color="Qualitat")
+    fig2 = px.bar(df, x='Material', y='Valor', color="Qualitat", text="Acabat")
+    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig2, use_container_width=True)
 
 # ---- FUNCIONS DEL PROGRAMA ----
+
 
 
 

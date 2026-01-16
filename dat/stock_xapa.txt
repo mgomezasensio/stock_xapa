@@ -18,13 +18,13 @@ CodiAcabat: enter FK
 Espesor: num (1dec)
 PreuKg: num (2dec)
 Data: date
-	UNIQUE (CodiMaterial, CodiQualitat,
-		CodiAcabat, Espesor)
+UNIQUE (CodiMaterial, CodiQualitat,
+	CodiAcabat, Espesor)
 
 Materials
 --------------------------------
 CodiMaterial: enter PK autoincrement
-Material: varchar (20) UNIQUE
+Material: text UNIQUE
 Densitat: num (1dec)
 
 
@@ -32,16 +32,16 @@ Qualitats
 --------------------------------
 CodiQualitat: enter PK autoincrement
 CodiMaterial: enter FK
-Qualitat: varchar (25)
-	UNIQUE (CodiMaterial, Qualitat)
+Qualitat: text
+UNIQUE (CodiMaterial, Qualitat)
 
 
 Acabats
 --------------------------------
 CodiAcabat: enter PK autoincrement
 CodiMaterial: enter FK
-Acabat: varchar (25)
-	UNIQUE (CodiMaterial, Acabat)
+Acabat: text
+UNIQUE (CodiMaterial, Acabat)
 
 
 Materials ---< Qualitats

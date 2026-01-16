@@ -1,4 +1,5 @@
 from datetime import date
+import time
 import streamlit as st
 import sqlite3
 
@@ -95,7 +96,7 @@ def pantalla_afegir_stock(DB_FILE, opcio):
                            placeholder="Espesor...",
                            key=f"{opcio}_stock_espesor")
 
-    with st.form(f"{opcio} Stock", clear_on_submit=False, enter_to_submit=False):
+    with st.form(f"{opcio} Stock", clear_on_submit=False, enter_to_submit=False): 
         longitud = st.number_input("Introdueix la longitud (mm)",
                                    step=1,
                                    value=None,
@@ -128,7 +129,7 @@ def pantalla_modificar_stock(DB_FILE, opcio):
     conexio = sqlite3.connect(DB_FILE)
     cursor = conexio.cursor()
     cursor.execute("""SELECT s.CodiStock, m.Material, q.Qualitat, a.Acabat,
-                            x.Espesor, s.Longitud, s.Amplada
+                            x.Espesor, s.Longitud, s.Amplada, s.Quantitat
                     FROM Stock as s
                     JOIN Xapes as x ON x.CodiXapa = s.CodiXapa
                     JOIN Materials as m ON m.CodiMaterial = x.CodiMaterial
@@ -137,34 +138,49 @@ def pantalla_modificar_stock(DB_FILE, opcio):
                     WHERE CodiStock = ?""", (codi_stock,))
     fila_stock = obtenir_dades(cursor)
     try:
-        codi_stock, material, qualitat, acabat, espesor, longitud, amplada = fila_stock
+        codi_stock, material, qualitat, acabat, espesor, longitud, amplada, quantitat = fila_stock
         st.info(f"""La xapa del stock a modificar es **{material} {qualitat} {acabat} de {espesor} mm** d'espesor.
-                \nLes dimensions de la xapa són **{longitud} x {amplada} mm**""")
-    
+                \nLes dimensions de la xapa són **{longitud} x {amplada} mm**.\nHi ha **{quantitat} unitats**""")
     except TypeError:
         st.error("Has d'indicar un codi de stock vàlid")
+        return
     except sqlite3.Error as e:
         st.error(e)
+        return
     
-    
-    with st.form(f"{opcio} Stock", clear_on_submit=False, enter_to_submit=False):
-        nova_longitud = st.number_input("Introdueix la nova longitud",
-                                  value=None,
-                                  step=1,
-                                  placeholder = "Nova longitud...")
-        nova_amplada = st.number_input("Introdueix la nova amplada",
-                                  value=None,
-                                  step=1,
-                                  placeholder = "Nova amplada...")
-        col1, col2, col3 = st.columns(3)
-        with col2:
-            submitted = st.form_submit_button(f"{opcio} al Stock")
-    
+    if quantitat > 1:
+        with st.form(f"{opcio} quantitat Stock", clear_on_submit=False, enter_to_submit=False):
+            quantitat_utilitzada = st.number_input("Quantitat de xapes utilitzades:",
+                                                    value=None,
+                                                    step=1,
+                                                    placeholder = "Quantitat utilitzada...")
+            col1, col2, col3 = st.columns(3)
+            with col2:
+                submitted = st.form_submit_button(f"{opcio} quantitat al Stock")
         if submitted:
-            if not (nova_longitud and nova_amplada):
-                st.error("Has d'introduir les noves longitud i amplada")
+            if not quantitat_utilitzada:
+                st.error("Has d'introduir la quantitat utilitzada")
             else:
-                modificar_stock(DB_FILE, codi_stock, nova_longitud, nova_amplada)
+                modificar_quantitat(DB_FILE, codi_stock, quantitat, quantitat_utilitzada)
+    else:
+        with st.form(f"{opcio} Stock", clear_on_submit=False, enter_to_submit=False):
+            nova_longitud = st.number_input("Introdueix la nova longitud",
+                                      value=None,
+                                      step=1,
+                                      placeholder = "Nova longitud...")
+            nova_amplada = st.number_input("Introdueix la nova amplada",
+                                      value=None,
+                                      step=1,
+                                      placeholder = "Nova amplada...")
+            col1, col2, col3 = st.columns(3)
+            with col2:
+                submitted2 = st.form_submit_button(f"{opcio} al Stock")
+        
+            if submitted2:
+                if not (nova_longitud and nova_amplada):
+                    st.error("Has d'introduir les noves longitud i amplada")
+                else:
+                    modificar_stock(DB_FILE, codi_stock, nova_longitud, nova_amplada)
 
 def pantalla_eliminar_stock(DB_FILE, opcio):
     st.title(f"{opcio} del Stock")            
@@ -227,6 +243,8 @@ def afegir_stock(DB_FILE, codi_material, codi_qualitat, codi_acabat, espesor, lo
                     )
     conexio.commit()
     st.success("Xapa afegida correctament al stock")
+    time.sleep(2)
+    st.rerun()
     conexio.close()
 
 def modificar_stock(DB_FILE, codi_stock, nova_longitud, nova_amplada):
@@ -239,8 +257,26 @@ def modificar_stock(DB_FILE, codi_stock, nova_longitud, nova_amplada):
     cursor.execute("UPDATE Stock SET Longitud = ?, Amplada = ?, Data = ? WHERE CodiStock = ?", (nova_longitud, nova_amplada, nova_data, codi_stock))
     conexio.commit()
     st.success("Les dimensions de la xapa en stock s'han modificat correctament")
+    time.sleep(2)
+    st.rerun()
     conexio.close()
-    
+
+def modificar_quantitat(DB_FILE, codi_stock, quantitat, quantitat_utilitzada):
+    if quantitat_utilitzada <= 0:
+        st.error("La quantitat ha de ser positiva")
+        return
+    restant = quantitat - quantitat_utilitzada
+    st.write(restant)
+    conexio = sqlite3.connect(DB_FILE)
+    cursor = conexio.cursor()
+    nova_data = date.today().strftime("%Y-%m-%d")
+    cursor.execute("UPDATE Stock SET Quantitat=?, Data = ? WHERE CodiStock = ?", (restant, nova_data, codi_stock))
+    conexio.commit()
+    st.success("Les dimensions de la xapa en stock s'han modificat correctament")
+    time.sleep(2)
+    st.rerun()
+    conexio.close()
+
 def eliminar_stock(DB_FILE, codi_stock):
     if codi_stock <= 0:
         st.error("Has d'introduir un codi de stock vàlid")
@@ -251,6 +287,8 @@ def eliminar_stock(DB_FILE, codi_stock):
     cursor.execute("UPDATE Stock SET Estat = ?, Data = ? WHERE CodiStock = ?", ("Inactiva", nova_data, codi_stock))
     conexio.commit()
     st.success("La xapa en stock s'ha eliminat correctament")
+    time.sleep(2)
+    st.rerun()
     conexio.close()
 
 # ---- FLUX PRINCIPAL DEL PROGRAMA ----

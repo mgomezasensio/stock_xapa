@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 import time
 import streamlit as st
 import sqlite3
@@ -109,6 +109,7 @@ def pantalla_afegir_stock(DB_FILE, opcio):
                                     step=1,
                                     value=None,
                                     placeholder="Quantitat...")
+        anotacio = st.text_area("Anotacions:")
         col1, col2, col3 = st.columns(3)
         with col2:
             submitted = st.form_submit_button(f"{opcio} al Stock")
@@ -118,7 +119,8 @@ def pantalla_afegir_stock(DB_FILE, opcio):
         elif not(longitud and amplada and quantitat):
             st.error("Has d'introduir la longitud, l'amplada i la quantitat")
         else:
-            afegir_stock(DB_FILE, codi_material, codi_qualitat, codi_acabat, espesor, longitud, amplada, quantitat)
+            afegir_stock(DB_FILE, codi_material, codi_qualitat, codi_acabat, espesor,
+                         longitud, amplada, quantitat, anotacio)
 
 def pantalla_modificar_stock(DB_FILE, opcio):
     st.title(f"{opcio} al Stock")
@@ -172,6 +174,7 @@ def pantalla_modificar_stock(DB_FILE, opcio):
                                       value=None,
                                       step=1,
                                       placeholder = "Nova amplada...")
+            anotacio = st.text_area("Anotacions:")
             col1, col2, col3 = st.columns(3)
             with col2:
                 submitted2 = st.form_submit_button(f"{opcio} al Stock")
@@ -180,7 +183,7 @@ def pantalla_modificar_stock(DB_FILE, opcio):
                 if not (nova_longitud and nova_amplada):
                     st.error("Has d'introduir les noves longitud i amplada")
                 else:
-                    modificar_stock(DB_FILE, codi_stock, nova_longitud, nova_amplada)
+                    modificar_stock(DB_FILE, codi_stock, nova_longitud, nova_amplada, anotacio)
 
 def pantalla_eliminar_stock(DB_FILE, opcio):
     st.title(f"{opcio} del Stock")            
@@ -222,7 +225,8 @@ def pantalla_eliminar_stock(DB_FILE, opcio):
 
 # ---- FUNCIONS DEL PROGRAMA ----
 
-def afegir_stock(DB_FILE, codi_material, codi_qualitat, codi_acabat, espesor, longitud, amplada, quantitat):
+def afegir_stock(DB_FILE, codi_material, codi_qualitat, codi_acabat, espesor,
+                 longitud, amplada, quantitat, anotacio):
     if longitud <= 0 or amplada <= 0 or quantitat <= 0:
         st.error("Longitud, amplada i quantitat han de ser positius")
         return
@@ -236,25 +240,43 @@ def afegir_stock(DB_FILE, codi_material, codi_qualitat, codi_acabat, espesor, lo
     codi_xapa = obtenir_dada(cursor)
     if codi_xapa is None:
         return
-    data = date.today().strftime("%Y-%m-%d")
-    cursor.execute("""INSERT INTO Stock (CodiXapa, Longitud, Amplada, Quantitat, Estat, Data)
-                        VALUES (?, ?, ?, ?, ?, ?)""",
-                        (codi_xapa, longitud, amplada, quantitat, "Activa", data)
+    data_hora = datetime.now().strftime("%Y-%m-%d %H:%M")
+    cursor.execute("""INSERT INTO Stock (CodiXapa, Longitud, Amplada, Quantitat, Anotacio, Estat, Data)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                        (codi_xapa, longitud, amplada, quantitat, anotacio, "Activa", data_hora)
                     )
+    conexio.commit()
+    codi_stock = cursor.lastrowid
+    cursor.execute("""INSERT INTO RegistresStock (CodiXapa, Longitud, Amplada, Quantitat,
+                        Anotacio, Estat, Data)
+                        SELECT CodiXapa, Longitud, Amplada, Quantitat, Anotacio, Estat, Data
+                        FROM Stock
+                        WHERE CodiStock = ?""",
+                       (codi_stock,)
+                   )
     conexio.commit()
     st.success("Xapa afegida correctament al stock")
     time.sleep(2)
     st.rerun()
     conexio.close()
 
-def modificar_stock(DB_FILE, codi_stock, nova_longitud, nova_amplada):
+def modificar_stock(DB_FILE, codi_stock, nova_longitud, nova_amplada, anotacio):
     if nova_longitud <= 0 or nova_amplada <= 0:
         st.error("La longitud i l'amplada han de ser positives")
         return
     conexio = sqlite3.connect(DB_FILE)
     cursor = conexio.cursor()
-    nova_data = date.today().strftime("%Y-%m-%d")
-    cursor.execute("UPDATE Stock SET Longitud = ?, Amplada = ?, Data = ? WHERE CodiStock = ?", (nova_longitud, nova_amplada, nova_data, codi_stock))
+    nova_data_hora = datetime.now().strftime("%Y-%m-%d %H:%M")
+    cursor.execute("UPDATE Stock SET Longitud = ?, Amplada = ?, Anotacio=?, Data = ? WHERE CodiStock = ?",
+                   (nova_longitud, nova_amplada, anotacio, nova_data_hora, codi_stock))
+    conexio.commit()
+    cursor.execute("""INSERT INTO RegistresStock (CodiXapa, Longitud, Amplada, Quantitat,
+                        Anotacio, Estat, Data)
+                        SELECT CodiXapa, Longitud, Amplada, Quantitat, Anotacio, Estat, Data
+                        FROM Stock
+                        WHERE CodiStock = ?""",
+                       (codi_stock,)
+                   )
     conexio.commit()
     st.success("Les dimensions de la xapa en stock s'han modificat correctament")
     time.sleep(2)
@@ -266,13 +288,21 @@ def modificar_quantitat(DB_FILE, codi_stock, quantitat, quantitat_utilitzada):
         st.error("La quantitat ha de ser positiva")
         return
     restant = quantitat - quantitat_utilitzada
-    st.write(restant)
     conexio = sqlite3.connect(DB_FILE)
     cursor = conexio.cursor()
-    nova_data = date.today().strftime("%Y-%m-%d")
-    cursor.execute("UPDATE Stock SET Quantitat=?, Data = ? WHERE CodiStock = ?", (restant, nova_data, codi_stock))
+    nova_data_hora = datetime.now().strftime("%Y-%m-%d %H:%M")
+    cursor.execute("UPDATE Stock SET Quantitat=?, Data = ? WHERE CodiStock = ?",
+                   (restant, nova_data_hora, codi_stock))
     conexio.commit()
-    st.success("Les dimensions de la xapa en stock s'han modificat correctament")
+    cursor.execute("""INSERT INTO RegistresStock (CodiXapa, Longitud, Amplada, Quantitat,
+                        Anotacio, Estat, Data)
+                        SELECT CodiXapa, Longitud, Amplada, Quantitat, Anotacio, Estat, Data
+                        FROM Stock
+                        WHERE CodiStock = ?""",
+                       (codi_stock,)
+                   )
+    conexio.commit()
+    st.success("La quantitat de xapes en stock s'ha modificat correctament")
     time.sleep(2)
     st.rerun()
     conexio.close()
@@ -283,8 +313,17 @@ def eliminar_stock(DB_FILE, codi_stock):
         return
     conexio = sqlite3.connect(DB_FILE)
     cursor = conexio.cursor()
-    nova_data = date.today().strftime("%Y-%m-%d")
-    cursor.execute("UPDATE Stock SET Estat = ?, Data = ? WHERE CodiStock = ?", ("Inactiva", nova_data, codi_stock))
+    nova_data_hora = datetime.now().strftime("%Y-%m-%d %H:%M")
+    cursor.execute("UPDATE Stock SET Estat = ?, Data = ? WHERE CodiStock = ?",
+                   ("Inactiva", nova_data_hora, codi_stock))
+    conexio.commit()
+    cursor.execute("""INSERT INTO RegistresStock (CodiXapa, Longitud, Amplada, Quantitat,
+                        Anotacio, Estat, Data)
+                        SELECT CodiXapa, Longitud, Amplada, Quantitat, Anotacio, Estat, Data
+                        FROM Stock
+                        WHERE CodiStock = ?""",
+                       (codi_stock,)
+                   )
     conexio.commit()
     st.success("La xapa en stock s'ha eliminat correctament")
     time.sleep(2)

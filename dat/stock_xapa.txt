@@ -5,8 +5,9 @@ CodiXapa: enter FK
 Longitud: enter
 Amplada: enter
 Quantitat: enter
+Anotacio: text
 Estat: text (ACTIVA / INACTIVA)
-Data: date
+Data: datetime
 
 
 Xapes
@@ -42,6 +43,30 @@ CodiAcabat: enter PK autoincrement
 CodiMaterial: enter FK
 Acabat: text
 UNIQUE (CodiMaterial, Acabat)
+
+Proveidors
+--------------------------------
+CodiProveidor: enter PK autoincrement
+Proveidor: text
+
+RegistresPreus
+---------------------------------
+CodiPreu: enter PK autoincrement
+CodiXapa: enter FK
+CodiProveidor: enter FK
+Data: date
+PreuKg: num (2dec)
+
+RegistresStock
+----------------------------------
+CodiRegistre: enter PK autoincrement
+CodiXapa: enter FK
+Longitud: enter
+Amplada: enter
+Quantitat: enter
+Anotacio: text
+Estat: text (ACTIVA / INACTIVA)
+Data: datetime
 
 
 Materials ---< Qualitats

@@ -67,8 +67,9 @@ def obtenir_df(DB_FILE):
                                index=None,
                                placeholder="Espesor...")
     sql_txt = """
-        SELECT s.CodiStock, m.Material, q.Qualitat, a.Acabat, x.Espesor, s.Longitud, s.Amplada, s.Quantitat, m.Densitat, x.PreuKg
-        FROM Stock as S
+        SELECT s.CodiStock, m.Material, q.Qualitat, a.Acabat, x.Espesor, s.Longitud, s.Amplada,
+                s.Quantitat, m.Densitat, x.PreuKg, s.Anotacio
+        FROM Stock as s
         JOIN Xapes as x ON x.CodiXapa = s.CodiXapa
         JOIN Materials as m ON m.CodiMaterial = x.CodiMaterial
         JOIN Qualitats as q ON q.CodiQualitat = x.CodiQualitat
@@ -103,18 +104,20 @@ def pantalla_consulta_stock(DB_FILE, opcio):
     st.title(opcio)
     df = obtenir_df(DB_FILE)
     if not df.empty:
-        df.columns = ["Codi", "Material", "Qualitat", "Acabat", "Espesor", "Longitud", "Amplada", "Quantitat", "Densitat", "PreuKg"]
-        df = df[["Codi", "Material", "Qualitat", "Acabat", "Espesor", "Longitud", "Amplada", "Quantitat"]]
+        df.columns = ["Codi", "Material", "Qualitat", "Acabat", "Espesor", "Longitud",
+                      "Amplada", "Quantitat", "Densitat", "PreuKg", "Anotacio"]
+        df = df[["Codi", "Material", "Qualitat", "Acabat", "Espesor",
+                 "Longitud", "Amplada", "Quantitat", "Anotacio"]]
+        st.dataframe(df, hide_index=True)
     else:
         st.error("No s'ha trobat cap resultat amb aquests filtres")
-    st.dataframe(df, hide_index=True)
 
-    
 def pantalla_consulta_valor_stock(DB_FILE, opcio):
     st.title(opcio)
     df = obtenir_df(DB_FILE)
     if not df.empty:
-        df.columns = ["Codi", "Material", "Qualitat", "Acabat", "Espesor", "Longitud", "Amplada", "Quantitat", "Densitat", "PreuKg"]
+        df.columns = ["Codi", "Material", "Qualitat", "Acabat", "Espesor", "Longitud",
+                      "Amplada", "Quantitat", "Densitat", "PreuKg", "Anotacio"]
         df['Pes'] = round((df.Longitud/1000) * (df.Amplada/1000) * df.Espesor * df.Densitat * df.Quantitat, 2)
         df['Valor'] = round(df.Pes * df.PreuKg, 2)
     else:
@@ -125,8 +128,8 @@ def pantalla_consulta_valor_stock(DB_FILE, opcio):
 
     fig = px.histogram(df, x='Material', y='Valor', color="Qualitat")
     fig2 = px.bar(df, x='Material', y='Valor', color="Qualitat", text="Acabat")
-    st.plotly_chart(fig, use_container_width=True)
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig, width='stretch')
+    st.plotly_chart(fig2, width='stretch')
 
 # ---- FUNCIONS DEL PROGRAMA ----
 

@@ -1,6 +1,7 @@
 import streamlit as st
 import sqlite3
 import pandas as pd
+import time
 
 st.set_page_config(page_title="Auxiliars")
 st.sidebar.title("Auxiliars")
@@ -18,6 +19,7 @@ def crear_taules(DB_FILE):
         Amplada INTEGER NOT NULL,
         Quantitat INTEGER NOT NULL,
         Estat TEXT,
+        Anotacio TEXT,
         Data DATE,
         FOREIGN KEY (CodiXapa) REFERENCES Xapes(CodiXapa)
         
@@ -58,6 +60,33 @@ def crear_taules(DB_FILE):
         FOREIGN KEY (CodiMaterial) REFERENCES Materials(CodiMaterial),
         UNIQUE (CodiMaterial, Acabat)
     );
+    
+    CREATE TABLE IF NOT EXISTS Proveidors (
+        CodiProveidor INTEGER PRIMARY KEY AUTOINCREMENT,
+        Proveidor TEXT NOT NULL UNIQUE
+    );
+
+    CREATE TABLE IF NOT EXISTS RegistresPreus (
+        CodiPreu INTEGER PRIMARY KEY AUTOINCREMENT,
+        CodiXapa INTEGER,
+        CodiProveidor INTEGER,
+        Data DATE,
+        PreuKg REAL NOT NULL,
+        FOREIGN KEY (CodiXapa) REFERENCES Xapes(CodiXapa),
+        FOREIGN KEY (CodiProveidor) REFERENCES Proveidors(CodiProveidor)
+    );
+    
+    CREATE TABLE IF NOT EXISTS RegistresStock (
+        CodiRegistre INTEGER PRIMARY KEY AUTOINCREMENT,
+        CodiXapa INTEGER,
+        Longitud INTEGER NOT NULL,
+        Amplada INTEGER NOT NULL,
+        Quantitat INTEGER NOT NULL,
+        Estat TEXT,
+        Anotacio TEXT,
+        Data DATETIME,
+        FOREIGN KEY (CodiXapa) REFERENCES Xapes(CodiXapa)
+    );
     """
     cursor.executescript(sql_txt)
     conexio.commit()
@@ -65,10 +94,26 @@ def crear_taules(DB_FILE):
 
 
 
-# ---- PANTALLES INICIALITZACIONS ----
+# ---- PANTALLES OPCIONS ----
+
+def pantalla_iniciar_valors(DB_FILE, opcio):
+    st.title(f"{opcio}")
+    col1, col2, col3 = st.columns(3)
+    with col1:    
+        if st.button("Iniciar Materials"):
+            iniciar_materials(DB_FILE)
+
+    with col2:
+        if st.button("Iniciar Qualitats"):
+            iniciar_qualitats(DB_FILE)
+
+    with col3:
+        if st.button("Iniciar Acabats"):
+            iniciar_acabats(DB_FILE)
+
 def pantalla_auxiliars_materials (DB_FILE, opcio):
     st.title(f"Introduir {opcio}")
-    st.info("En aquesta pàgina pots inicialitzar els diferents materials de la base de dades amb les seves densitats")
+    st.info("En aquesta pàgina pots introduir materials a la base de dades amb les seves densitats")
     col1, col2 = st.columns(2)
     with col1:
         with st.form(f"Auxiliar {opcio}", clear_on_submit=False, enter_to_submit=False):
@@ -87,7 +132,11 @@ def pantalla_auxiliars_materials (DB_FILE, opcio):
         cursor.execute("SELECT * FROM Materials")
         materials = cursor.fetchall()
         df = pd.DataFrame(materials)
-        df.columns = ["Codi", "Material", "Densitat (g/cm^3)"]
+        if not df.empty:
+            df.columns = ["Codi", "Material", "Densitat (g/cm^3)"]
+        else:
+            st.error("No s'ha trobat cap material a la base de dades")
+            return
         col1, col2, col3 = st.columns([1,8,1]) # Proporcions de les columnes
         with col2:
             st.write("Materials introduïts a la base de dades")
@@ -95,7 +144,7 @@ def pantalla_auxiliars_materials (DB_FILE, opcio):
 
 def pantalla_auxiliars_qualitats (DB_FILE, opcio):
     st.title(f"Introduir {opcio}")
-    st.info("En aquesta pàgina pots inicialitzar les diferents qualitats de cada material introduït a la base de dades")
+    st.info("En aquesta pàgina pots introduir qualitats de cada material introduït a la base de dades")
     col1, col2 = st.columns(2)
     with col1:
         conexio = sqlite3.connect(DB_FILE)
@@ -123,17 +172,22 @@ def pantalla_auxiliars_qualitats (DB_FILE, opcio):
         cursor.execute("SELECT * FROM Qualitats as q JOIN Materials as m ON q.CodiMaterial = m.CodiMaterial")
         qualitats = cursor.fetchall()
         df = pd.DataFrame(qualitats)
-        df.columns = ["Codi", "Codi mat1", "Qualitat", "Codi Mat2", "Material", "Densitat"]
-        columnes_visibles = ["Codi", "Qualitat", "Material"]
-        df_filtrat = df[columnes_visibles]
+        if not df.empty:
+            df.columns = ["Codi", "Codi mat1", "Qualitat", "Codi Mat2", "Material", "Densitat"]
+            columnes_visibles = ["Codi", "Qualitat", "Material"]
+            df_filtrat = df[columnes_visibles]
+        else:
+            st.error("No s'ha trobat cap qualitat a la base de dades")
+            return
         col1, col2, col3 = st.columns([1,9,1])
         with col2:
             st.write("Qualitats introduides a la base de dades")
         st.dataframe(df_filtrat, hide_index=True)
 
+
 def pantalla_auxiliars_acabats(DB_FILE, opcio):
     st.title(f"Introduir {opcio}")
-    st.info("En aquesta pàgina pots inicialitzar els diferents acabats de cada material introduït a la base de dades")
+    st.info("En aquesta pàgina pots introduir acabats de cada material introduït a la base de dades")
     col1, col2 = st.columns(2)
     with col1:
         conexio = sqlite3.connect(DB_FILE)
@@ -160,13 +214,126 @@ def pantalla_auxiliars_acabats(DB_FILE, opcio):
         cursor.execute("SELECT * FROM Acabats as a JOIN Materials as m ON a.CodiMaterial = m.CodiMaterial")
         qualitats = cursor.fetchall()
         df = pd.DataFrame(qualitats)
-        df.columns = ["Codi", "Codi mat1", "Acabat", "Codi Mat2", "Material", "Densitat"]
-        columnes_visibles = ["Codi", "Acabat", "Material"]
-        df_filtrat = df[columnes_visibles]        
+        if not df.empty:
+            df.columns = ["Codi", "Codi mat1", "Acabat", "Codi Mat2", "Material", "Densitat"]
+            columnes_visibles = ["Codi", "Acabat", "Material"]
+            df_filtrat = df[columnes_visibles]
+        else:
+            st.error("No s'ha trobat cap acabat a la base de dades")
+            return
         col1, col2, col3 = st.columns([1,8,1])
         with col2:
             st.write("Acabats introduïts a la base de dades")
         st.dataframe(df_filtrat, hide_index=True)
+
+def pantalla_auxiliars_proveidors (DB_FILE, opcio):
+    st.title(f"Introduir {opcio}")
+    st.info("En aquesta pàgina pots introduir proveïdors de xapa a la base de dades")
+    col1, col2 = st.columns(2)
+    with col1:
+        with st.form(f"Auxiliar {opcio}", clear_on_submit=False, enter_to_submit=False):
+            proveidor = st.text_input("Introdueix el proveidor")
+            submitted = st.form_submit_button(f"Introduir {opcio}")
+        
+        if submitted:
+            auxiliar_proveidor(DB_FILE, proveidor)
+    with col2:
+        conexio = sqlite3.connect(DB_FILE)
+        cursor = conexio.cursor()
+        cursor.execute("SELECT * FROM Proveidors")
+        proveidors = cursor.fetchall()
+        df = pd.DataFrame(proveidors)
+        if not df.empty:
+            df.columns = ["Codi", "Proveïdor"]
+        else:
+            st.error("No s'ha trobat cap proveïdor a la base de dades")
+            return
+        col1, col2, col3 = st.columns([1,8,1]) # Proporcions de les columnes
+        with col2:
+            st.write("Proveïdors introduïts a la base de dades")
+        st.dataframe(df, hide_index=True)
+    
+#----- FUNCIONS DEL PROGRAMA-----
+
+def iniciar_materials(DB_FILE):
+    conexio = sqlite3.connect(DB_FILE)
+    cursor = conexio.cursor()
+    sql_txt = """INSERT INTO Materials (Material, Densitat)
+                VALUES
+                ("Acer", 8),
+                ("Inoxidable", 8),
+                ("Alumini", 2.7);
+                """
+    try:
+        cursor.execute(sql_txt)
+        st.success("El material s'ha inicialitzat correctament")
+        conexio.commit()
+        time.sleep(2)
+        st.rerun()
+    except sqlite3.IntegrityError:
+        st.error("El material ja està inicialitzat")
+        time.sleep(5)
+        st.rerun()
+        return
+    finally:
+        conexio.close()
+
+def iniciar_qualitats(DB_FILE):
+    conexio = sqlite3.connect(DB_FILE)
+    cursor = conexio.cursor()
+    sql_txt = """INSERT INTO Qualitats (CodiMaterial, Qualitat)
+                VALUES
+                (1, "S235"),
+                (1, "S355"),
+                (2, "AISI 304"),
+                (2, "AISI 316"),
+                (2, "AISI 430"),
+                (3, "5754"),
+                (3, "5083"),
+                (3, "6082");
+                """
+    try:
+        cursor.execute(sql_txt)
+        st.success("La qualitat s'ha inicialitzat correctament")
+        conexio.commit()
+        time.sleep(2)
+        st.rerun()
+    except sqlite3.IntegrityError:
+        st.error("La qualitat ja està inicialitzada")
+        time.sleep(5)
+        st.rerun()
+        return
+    finally:
+        conexio.close()
+
+def iniciar_acabats (DB_FILE):
+    conexio = sqlite3.connect(DB_FILE)
+    cursor = conexio.cursor()
+    sql_txt = """INSERT INTO Acabats (CodiMaterial, Acabat)
+                VALUES
+                (1, "Pulida"),
+                (1, "Decapada"),
+                (1, "Negra"),
+                (2, "2B"),
+                (2, "Satinada"),
+                (2, "BA"),
+                (2, "LC"),
+                (3, "Brut"),
+                (3, "Damero");
+                """
+    try:
+        cursor.execute(sql_txt)
+        st.success("L'acabat s'ha inicialitzat correctament")
+        conexio.commit()
+        time.sleep(2)
+        st.rerun()
+    except sqlite3.IntegrityError:
+        st.error("L'acabat ja està inicialitzat")
+        time.sleep(5)
+        st.rerun()
+        return
+    finally:
+        conexio.close()
 
 def auxiliar_material(DB_FILE, material, densitat):
     conexio = sqlite3.connect(DB_FILE)
@@ -184,6 +351,8 @@ def auxiliar_material(DB_FILE, material, densitat):
                        )
         st.success(f"El material {material} s'ha afegit correctament")
         conexio.commit()
+        time.sleep(2)
+        st.rerun()
     except sqlite3.IntegrityError:
         st.error(f"El material {material} ja està creat")
         return
@@ -204,6 +373,8 @@ def auxiliar_qualitat(DB_FILE, material, codi_material, qualitat):
                        )
         st.success(f"La qualitat {qualitat} del material {material} s'ha afegit correctament")
         conexio.commit()
+        time.sleep(2)
+        st.rerun()
     except sqlite3.IntegrityError:
         st.error(f"La qualitat {qualitat} del material {material} ja està creada")
         return
@@ -224,8 +395,31 @@ def auxiliar_acabats(DB_FILE, material, codi_material, acabat):
                        )
         st.success(f"L'acabat {acabat} del material {material} s'ha afegit correctament")
         conexio.commit()
+        time.sleep(2)
+        st.rerun()
     except sqlite3.IntegrityError:
         st.error(f"L'acabat {acabat} del material {material} ja està creat")
+        return
+    finally:
+        conexio.close()
+
+def auxiliar_proveidor(DB_FILE, proveidor):
+    conexio = sqlite3.connect(DB_FILE)
+    cursor = conexio.cursor()
+    
+    if not proveidor:
+        st.error("Has d'introduir un proveïdor")
+        return
+    try:
+        cursor.execute("""INSERT INTO Proveidors (Proveidor)
+                       VALUES (?)""", (proveidor,)
+                       )
+        st.success(f"El proveïdor {proveidor} s'ha afegit correctament")
+        conexio.commit()
+        time.sleep(2)
+        st.rerun()
+    except sqlite3.IntegrityError:
+        st.error(f"El proveïdor {proveidor} ja està creat")
         return
     finally:
         conexio.close()
@@ -242,7 +436,7 @@ def main():
 #---- INTERFÍCIE STREAMLIT ----
 # ---- BARRA LATERAL ----
     
-    opcions_menu = ["Materials", "Qualitats", "Acabats"]
+    opcions_menu = ["Iniciar valors", "Materials", "Qualitats", "Acabats", "Proveïdors"]
 
     with st.sidebar:
         st.header("Menú principal")
@@ -254,9 +448,11 @@ def main():
 # ---- PANTALLES MENÚ ----
 
     pantalles = {
+        "Iniciar valors": pantalla_iniciar_valors,
         "Materials": pantalla_auxiliars_materials,
         "Qualitats": pantalla_auxiliars_qualitats,
-        "Acabats": pantalla_auxiliars_acabats
+        "Acabats": pantalla_auxiliars_acabats,
+        "Proveïdors": pantalla_auxiliars_proveidors
     }
     if opcio in pantalles:
         pantalles[opcio](DB_FILE, opcio)

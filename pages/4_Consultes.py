@@ -98,6 +98,25 @@ def obtenir_df(DB_FILE):
     df = pd.DataFrame(consultes)
     return df
 
+def obtenir_df_preus (DB_FILE):
+    sql_txt = """
+        SELECT rp.CodiPreu, m.Material, q.Qualitat, a.Acabat, x.Espesor, rp.PreuKg, p.Proveidor, rp.Data
+        FROM RegistresPreus as rp
+        JOIN Xapes as x ON x.CodiXapa = rp.CodiXapa
+        JOIN Materials as m ON m.CodiMaterial = x.CodiMaterial
+        JOIN Qualitats as q ON q.CodiQualitat = x.CodiQualitat
+        JOIN Acabats as a ON a.CodiAcabat = x.CodiAcabat
+        JOIN Proveidors as p ON p.CodiProveidor = rp.CodiProveidor
+        ORDER BY rp.Data
+        """
+    conexio = sqlite3.connect(DB_FILE)
+    cursor = conexio.cursor()
+    cursor.execute(sql_txt)
+    consultes = cursor.fetchall()
+    conexio.close()
+    df = pd.DataFrame(consultes)
+    return df
+
 # ---- FUNCIONS PANTALLES PROGRAMA ----
 
 def pantalla_consulta_stock(DB_FILE, opcio):
@@ -125,11 +144,55 @@ def pantalla_consulta_valor_stock(DB_FILE, opcio):
         return
     
     st.metric("Valor (€)", f"{round(df.Valor.sum(), 2)} €")
-
-    fig = px.histogram(df, x='Material', y='Valor', color="Qualitat")
+    
+    col1, col2 = st.columns(2)
+    fig = px.histogram(df, x='Material', y='Valor', color="Qualitat", barmode="group")
     fig2 = px.bar(df, x='Material', y='Valor', color="Qualitat", text="Acabat")
+    fig3 = px.pie(df, values="Quantitat", names="Material")
+    fig4 = px.pie(df, values="Pes", names="Material")
+    with col1:
+        st.plotly_chart(fig, width='stretch')
+        st.plotly_chart(fig3, width='stretch')
+    with col2:
+        st.plotly_chart(fig2, width='stretch')
+        st.plotly_chart(fig4, width='stretch')
+    
+def pantalla_evolucio_preus(DB_FILE, opcio):
+    st.title(opcio)
+    df = obtenir_df_preus(DB_FILE)
+    if not df.empty:
+        df.columns = ["Codi registre", "Material", "Qualitat", "Acabat", "Espesor",
+                      "PreuKg", "Proveidor", "Data"]
+    else:
+        st.error("No s'ha trobat cap resultat amb aquests filtres")
+        return
+    proveidors = ['Tots'] + sorted(df['Proveidor'].unique())
+    proveidor = st.selectbox("Filtre per proveidor", proveidors)
+    
+    if proveidor != 'Tots':
+        df = df[df['Proveidor'] == proveidor]
+        
+    df["Xapa"] = (
+        df["Material"] + " " +
+        df["Qualitat"] + " " +
+        df["Acabat"] + " " +
+        df["Espesor"].astype(str) + " mm" )
+    
+    if proveidor != 'Tots':
+        xapes = ['Totes'] + sorted(df.Xapa[df.Proveidor == proveidor].unique())
+        xapa = st.selectbox("Filtre per xapa", xapes)
+    else:
+        xapes = ['Totes'] + sorted(df.Xapa.unique())
+        xapa = st.selectbox("Filtre per xapa", xapes)
+    
+    if xapa != 'Totes':
+        df = df[df.Xapa == xapa]
+    
+    df = df[['Xapa', 'Proveidor', 'PreuKg', 'Data']]
+    st.dataframe(df, hide_index=True)
+    fig = px.line(df, x="Data", y="PreuKg", title='Evolució del preu de les xapes',
+                  color="Xapa", markers=True)
     st.plotly_chart(fig, width='stretch')
-    st.plotly_chart(fig2, width='stretch')
 
 # ---- FUNCIONS DEL PROGRAMA ----
 
@@ -140,7 +203,7 @@ def pantalla_consulta_valor_stock(DB_FILE, opcio):
 
 def main():
     DB_FILE = "./dat/stock_xapa.db"
-    opcions_menu = ["Consulta stock", "Consulta valor stock"]
+    opcions_menu = ["Consulta stock", "Consulta valor stock", "Evolució preus"]
     
     with st.sidebar:
         st.header("Menú principal")
@@ -153,6 +216,7 @@ def main():
     pantalles = {
             "Consulta stock": pantalla_consulta_stock,
             "Consulta valor stock": pantalla_consulta_valor_stock,
+            "Evolució preus": pantalla_evolucio_preus
         }
     if opcio in pantalles:
         pantalles[opcio](DB_FILE, opcio)

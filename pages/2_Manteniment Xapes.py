@@ -66,6 +66,9 @@ def obtenir_proveidors(DB_FILE):
 
 def pantalla_afegir_xapa(DB_FILE, opcio):
     st.title(f"{opcio} Xapa")
+    with st.popover("Explicació"):    
+        st.info("""En aquesta pàgina pots introduïr les xapes amb les que es treballa, seleccionant material,
+                qualitat i acabat i afegint l'espesor, el proveïdor i el preu""")
     materials = obtenir_materials(DB_FILE)
     material = st.selectbox("Selecciona el material",
                             list(materials.keys()),
@@ -163,6 +166,8 @@ def pantalla_afegir_xapa(DB_FILE, opcio):
 
 def pantalla_modificar_xapa(DB_FILE, opcio):
     st.title(f"{opcio} Xapa")
+    with st.popover("Explicació"):
+        st.info("En aquesta pàgina pots modificar el preu de les xapes seleccionant material, qualitat, acabat i espesor i afegir el proveïdor i el nou preu")
     materials = obtenir_materials(DB_FILE)
     material = st.selectbox("Selecciona el material",
                             list(materials.keys()),
@@ -315,6 +320,12 @@ def main():
         pantalla_afegir_xapa(DB_FILE, opcio)
     elif opcio == "Modificar":
         pantalla_modificar_xapa(DB_FILE, opcio)
+    else:
+        st.title("Manteniment de les xapes")
+        st.space("medium")
+        st.write("""En aquest apartat pots seleccionar a la barra lateral una de les opcions.
+                    \n - Afegir una nova xapa
+                    \n - Modificar el preu d'una xapa creada""") 
     
 
 # ---- INICIALITZACIÓ PROGRAMA ----

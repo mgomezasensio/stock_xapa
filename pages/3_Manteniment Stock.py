@@ -59,6 +59,8 @@ def obtenir_espesors(DB_FILE, codi_material, codi_qualitat, codi_acabat):
 
 def pantalla_afegir_stock(DB_FILE, opcio):
     st.title(f"{opcio} al Stock")
+    with st.popover("Explicació"):
+        st.info("En aquesta pàgina pots afegir la xapa al stock amb les mides (longidtud i amplada), la quantitat i afegir alguna anotació")
     materials = obtenir_materials(DB_FILE)
     material = st.selectbox("Selecciona el material",
                             list(materials.keys()),
@@ -124,6 +126,10 @@ def pantalla_afegir_stock(DB_FILE, opcio):
 
 def pantalla_modificar_stock(DB_FILE, opcio):
     st.title(f"{opcio} al Stock")
+    with st.popover("Explicació"):
+        st.info("""En aquesta pàgina pots modificar les xapes en stock.\n - Si hi ha una unitat, podràs modificar les dimensions.
+                \n - Si hi ha més d'una unitat, hauràs de posar les quantitats utilitzades. Després hauràs d'afegir els retals que hagin quedat disponibles.
+                \n - Si s'han utilitzat totes les xapes, s'haurà d'eliminar la xapa del stock.""")
     codi_stock = st.number_input("Codi de la xapa en stock",
                                 value=None,
                                 step=1,
@@ -186,7 +192,9 @@ def pantalla_modificar_stock(DB_FILE, opcio):
                     modificar_stock(DB_FILE, codi_stock, nova_longitud, nova_amplada, anotacio)
 
 def pantalla_eliminar_stock(DB_FILE, opcio):
-    st.title(f"{opcio} del Stock")            
+    st.title(f"{opcio} del Stock")
+    with st.popover("Explicació"):
+        st.info("En aquesta pàgina pots eliminar del stock la xapa que ja s'ha utilitzat completament")
     
     codi_stock = st.number_input("Codi de la xapa en stock",
                                 value=None,
@@ -356,6 +364,13 @@ def main():
         pantalla_modificar_stock(DB_FILE, opcio)
     elif opcio == "Eliminar":
         pantalla_eliminar_stock(DB_FILE, opcio)
+    else:
+        st.title("Manteniment del stock de xapes")
+        st.space('medium')
+        st.write("""En aquest apartat pots seleccionar una opció de la barra lateral.
+                    \n - Afegir una xapa al stock
+                    \n - Modificar la quantitat o les mides d'una xapa del stock
+                    \n - Eliminar una xapa del stock""")
     
 
 # ---- INICIALITZACIÓ PROGRAMA ----

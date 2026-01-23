@@ -108,7 +108,16 @@ def crear_joc_dades(DB_FILE):
                 INSERT INTO Xapes (CodiMaterial, CodiQualitat, CodiAcabat, Espesor, PreuKg, Data) VALUES
                         (1,1,1,1.0,1.20,'2024-01-01'),
                         (1,2,2,2.0,1.40,'2024-01-01'),
-                        (2,3,4,1.5,2.80,'2024-01-01');
+                        (2,3,4,1.5,2.80,'2024-01-01'),
+                        (1, 1, 2, 0.8, 1.10, '2024-01-01'),
+                        (1, 2, 1, 3.0, 1.55, '2024-01-01'),
+                        (2, 3, 4, 2.0, 2.95, '2024-01-01'),
+                        (1, 1, 3, 1.2, 1.25, '2024-01-01'),
+                        (1, 2, 2, 2.5, 1.48, '2024-01-01'),
+                        (2, 4, 5, 1.0, 3.10, '2024-01-01'),
+                        (2, 4, 6, 1.5, 3.45, '2024-01-01'),
+                        (3, 6, 8, 2.0, 2.40, '2024-01-01'),
+                        (3, 7, 9, 3.0, 2.85, '2024-01-01');
 
                 INSERT INTO RegistresPreus (CodiXapa, CodiProveidor, Data, PreuKg) VALUES
                         (1,1,'2024-01-05',1.18),
@@ -116,84 +125,153 @@ def crear_joc_dades(DB_FILE):
                         (1,1,'2024-01-20',1.22),
                         (1,1,'2024-02-01',1.25),
                         (1,1,'2024-02-10',1.27),
-
                         (1,3,'2024-01-08',1.19),
                         (1,3,'2024-01-18',1.21),
                         (1,3,'2024-01-28',1.23),
                         (1,3,'2024-02-05',1.26),
                         (1,3,'2024-02-15',1.28),
-
                         (1,5,'2024-02-20',1.30),
                         (1,7,'2024-02-25',1.32),
-
                         (2,2,'2024-01-06',1.38),
                         (2,2,'2024-01-14',1.40),
                         (2,2,'2024-01-22',1.42),
                         (2,2,'2024-02-02',1.45),
                         (2,2,'2024-02-12',1.48),
-
                         (2,4,'2024-01-10',1.39),
                         (2,4,'2024-01-19',1.41),
                         (2,4,'2024-01-30',1.44),
                         (2,4,'2024-02-08',1.47),
                         (2,4,'2024-02-18',1.50),
-
                         (2,6,'2024-02-22',1.52),
                         (2,8,'2024-02-28',1.55),
-
                         (3,5,'2024-01-07',2.75),
                         (3,5,'2024-01-15',2.78),
                         (3,5,'2024-01-25',2.80),
                         (3,5,'2024-02-03',2.82),
                         (3,5,'2024-02-14',2.85),
-
                         (3,7,'2024-01-09',2.76),
                         (3,7,'2024-01-18',2.79),
                         (3,7,'2024-01-29',2.81),
                         (3,7,'2024-02-06',2.84),
                         (3,7,'2024-02-16',2.87),
-
                         (3,9,'2024-02-22',2.90),
                         (3,1,'2024-02-28',2.92),
-                        
                         (1,1,'2024-03-01',1.29),
                         (1,1,'2024-03-10',1.31),
                         (1,1,'2024-03-20',1.33),
-
                         (1,3,'2024-03-03',1.30),
                         (1,3,'2024-03-12',1.32),
                         (1,3,'2024-03-22',1.34),
-
                         (1,5,'2024-03-15',1.35),
                         (1,7,'2024-03-25',1.37),
-
                         (2,2,'2024-03-02',1.50),
                         (2,2,'2024-03-11',1.53),
                         (2,2,'2024-03-21',1.56),
-
                         (2,4,'2024-03-05',1.49),
                         (2,4,'2024-03-14',1.52),
                         (2,4,'2024-03-24',1.55),
-
                         (2,6,'2024-03-18',1.58),
                         (2,8,'2024-03-28',1.60),
-
                         (3,5,'2024-03-04',2.88),
                         (3,5,'2024-03-13',2.90),
                         (3,5,'2024-03-23',2.93),
-
                         (3,7,'2024-03-06',2.89),
                         (3,7,'2024-03-16',2.92),
                         (3,7,'2024-03-26',2.95),
-
                         (3,9,'2024-03-20',2.97),
-                        (3,1,'2024-03-30',2.99);
-
+                        (3,1,'2024-03-30',2.99),
+                        (1,1,'2024-04-05',1.34),
+                        (1,3,'2024-04-10',1.36),
+                        (1,5,'2024-04-15',1.38),
+                        (1,7,'2024-04-20',1.40),
+                        (2,2,'2024-04-04',1.58),
+                        (2,4,'2024-04-12',1.60),
+                        (2,6,'2024-04-18',1.63),
+                        (2,8,'2024-04-25',1.65),
+                        (3,5,'2024-04-03',2.95),
+                        (3,7,'2024-04-11',2.98),
+                        (3,9,'2024-04-19',3.02),
+                        (3,1,'2024-04-28',3.05),
+                        (4,1,'2024-01-10',1.08),
+                        (4,3,'2024-02-10',1.12),
+                        (4,5,'2024-03-10',1.15),
+                        (5,2,'2024-01-12',1.60),
+                        (5,4,'2024-02-12',1.63),
+                        (5,6,'2024-03-12',1.67),
+                        (6,7,'2024-01-15',2.85),
+                        (6,8,'2024-02-15',2.90),
+                        (6,9,'2024-03-15',2.95),
+                        (7,1,'2024-01-10',1.22),
+                        (7,3,'2024-02-10',1.24),
+                        (7,5,'2024-03-10',1.27),
+                        (8,2,'2024-01-12',1.50),
+                        (8,4,'2024-02-12',1.53),
+                        (8,6,'2024-03-12',1.56),
+                        (9,5,'2024-01-15',3.05),
+                        (9,7,'2024-02-15',3.12),
+                        (9,1,'2024-03-15',3.18),
+                        (10,4,'2024-01-18',3.42),
+                        (10,6,'2024-02-18',3.48),
+                        (10,8,'2024-03-18',3.55),
+                        (11,9,'2024-01-20',2.38),
+                        (11,3,'2024-02-20',2.42),
+                        (11,1,'2024-03-20',2.45),
+                        (12,2,'2024-01-22',2.82),
+                        (12,4,'2024-02-22',2.87),
+                        (12,7,'2024-03-22',2.92),
+                        (1,1,'2024-04-05',1.34),
+                        (1,3,'2024-05-05',1.36),
+                        (1,5,'2024-06-05',1.38),
+                        (2,2,'2024-04-08',1.58),
+                        (2,4,'2024-05-08',1.61),
+                        (2,6,'2024-06-08',1.64),
+                        (3,5,'2024-04-10',2.96),
+                        (3,7,'2024-05-10',2.99),
+                        (3,9,'2024-06-10',3.03),
+                        (4,1,'2024-04-12',1.17),
+                        (4,3,'2024-05-12',1.19),
+                        (4,5,'2024-06-12',1.22),
+                        (5,2,'2024-04-14',1.62),
+                        (5,4,'2024-05-14',1.65),
+                        (5,6,'2024-06-14',1.68),
+                        (6,7,'2024-04-16',2.97),
+                        (6,8,'2024-05-16',3.00),
+                        (6,9,'2024-06-16',3.04),
+                        (7,1,'2024-04-10',1.29),
+                        (7,3,'2024-05-10',1.31),
+                        (7,5,'2024-06-10',1.34),
+                        (8,2,'2024-04-12',1.58),
+                        (8,4,'2024-05-12',1.61),
+                        (8,6,'2024-06-12',1.64),
+                        (9,5,'2024-04-15',3.20),
+                        (9,7,'2024-05-15',3.25),
+                        (9,1,'2024-06-15',3.30),
+                        (10,4,'2024-04-18',3.58),
+                        (10,6,'2024-05-18',3.63),
+                        (10,8,'2024-06-18',3.68),
+                        (11,9,'2024-04-20',2.48),
+                        (11,3,'2024-05-20',2.52),
+                        (11,1,'2024-06-20',2.55),
+                        (12,2,'2024-04-22',2.95),
+                        (12,4,'2024-05-22',3.00),
+                        (12,7,'2024-06-22',3.05);
                         
                 INSERT INTO Stock (CodiXapa, Longitud, Amplada, Quantitat, Anotacio, Estat, Data) VALUES
                         (1,2000,1000,5,'Test','Activa','2024-03-01 10:00:00'),
-                        (2,3000,1500,3,'Test','Activa','2024-03-01 11:00:00'),
-                        (3,2500,1250,4,'Test','Activa','2024-03-01 12:00:00');
+                        (2,3000,1500,1,'Test','Activa','2024-03-01 11:00:00'),
+                        (3,2500,1250,4,'Test','Activa','2024-03-01 12:00:00'),
+                        (1,2500,1250,7,'Reposició','Activa','2024-04-01 09:00:00'),
+                        (2,2000,1000,4,'Entrada','Activa','2024-04-01 10:00:00'),
+                        (3,3000,1500,6,'Entrada','Activa','2024-04-01 11:00:00'),
+                        (4,2000,1000,10,'Nova xapa','Activa','2024-04-02 08:30:00'),
+                        (5,2500,1250,8,'Nova xapa','Activa','2024-04-02 09:15:00'),
+                        (6,3000,1500,5,'Nova xapa','Activa','2024-04-02 10:00:00'),
+                        (7,2000,1000,1,'Nova entrada','Activa','2024-04-04 08:30:00'),
+                        (8,2500,1250,9,'Nova entrada','Activa','2024-04-04 09:00:00'),
+                        (9,3000,1500,6,'Nova entrada','Activa','2024-04-04 09:30:00'),
+                        (10,2000,1000,1,'Nova entrada','Activa','2024-04-05 08:45:00'),
+                        (11,2500,1250,10,'Nova entrada','Activa','2024-04-05 09:15:00'),
+                        (12,3000,1500,7,'Nova entrada','Activa','2024-04-05 10:00:00');
     """
     cursor.executescript(sql_txt)
     conexio.commit()
@@ -202,29 +280,75 @@ def crear_joc_dades(DB_FILE):
     st.rerun()
     conexio.close()
 
+def eliminar_dades (DB_FILE):
+    sql_txt = """DELETE FROM Proveidors;
+                DELETE FROM sqlite_sequence WHERE name='Proveidors';
+                DELETE FROM Xapes;
+                DELETE FROM sqlite_sequence WHERE name='Xapes';
+                DELETE FROM RegistresPreus;
+                DELETE FROM sqlite_sequence WHERE name='RegistresPreus';
+                DELETE FROM Stock;
+                DELETE FROM sqlite_sequence WHERE name='Stock';
+                DELETE FROM RegistresStock;
+                DELETE FROM sqlite_sequence WHERE name='RegistresStock';
+                """
+    conexio = sqlite3.connect(DB_FILE)
+    cursor = conexio.cursor()
+    cursor.executescript(sql_txt)
+    conexio.commit()
+    conexio.close()
+
 
 # ---- PANTALLES OPCIONS ----
 
 def pantalla_iniciar_valors(DB_FILE, opcio):
     st.title(f"{opcio}")
-    col1, col2, col3 = st.columns(3)
-    with col1:    
+    with st.container():
+        st.write('Crea els materials inicials')
         if st.button("Iniciar Materials"):
             iniciar_materials(DB_FILE)
-
-    with col2:
+            
+        st.space(size="small")
+        
+        st.write('Crea les qualitats inicials dels materials')
         if st.button("Iniciar Qualitats"):
             iniciar_qualitats(DB_FILE)
-
-    with col3:
+        
+        st.space(size="small")
+        
+        st.write('Crea els acabats inicials dels materials')
         if st.button("Iniciar Acabats"):
             iniciar_acabats(DB_FILE)
-    if st.button("Iniciar joc de dades"):
-        crear_joc_dades(DB_FILE)
+    st.space(size="large")
+    with st.expander('Proves'):
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write('Crea un joc de dades generat amb IA')
+            if st.button("Iniciar joc de dades"):
+                crear_joc_dades(DB_FILE)
+        with col2:
+            st.write('Elimina les dades de la base de dades')
+            if "confirmar_eliminar" not in st.session_state:
+                st.session_state.confirmar_eliminar = False
+            if st.button("Eliminar dades"):
+                st.session_state.confirmar_eliminar = True
+            
+            if st.session_state.confirmar_eliminar:
+                st.warning("Vols eliminar totes les dades?")
+                if st.button('Acceptar'):
+                    eliminar_dades(DB_FILE)
+                    st.success("Les dades s'han eliminat correctament de la base de dades")
+                    time.sleep(2)
+                    st.session_state.confirmar_eliminar = False
+                    st.rerun()
+                if st.button('Cancelar'):
+                    st.session_state.confirmar_eliminar = False
+                    st.rerun()
 
 def pantalla_auxiliars_materials (DB_FILE, opcio):
     st.title(f"Introduir {opcio}")
-    st.info("En aquesta pàgina pots introduir materials a la base de dades amb les seves densitats")
+    with st.popover("Explicació"):
+        st.info("En aquesta pàgina pots introduir materials a la base de dades amb les seves densitats")
     col1, col2 = st.columns(2)
     with col1:
         with st.form(f"Auxiliar {opcio}", clear_on_submit=False, enter_to_submit=False):
@@ -255,7 +379,8 @@ def pantalla_auxiliars_materials (DB_FILE, opcio):
 
 def pantalla_auxiliars_qualitats (DB_FILE, opcio):
     st.title(f"Introduir {opcio}")
-    st.info("En aquesta pàgina pots introduir qualitats de cada material introduït a la base de dades")
+    with st.popover("Explicació"):
+        st.info("En aquesta pàgina pots introduir les qualitats de cada material introduït a la base de dades")
     col1, col2 = st.columns(2)
     with col1:
         conexio = sqlite3.connect(DB_FILE)
@@ -298,7 +423,8 @@ def pantalla_auxiliars_qualitats (DB_FILE, opcio):
 
 def pantalla_auxiliars_acabats(DB_FILE, opcio):
     st.title(f"Introduir {opcio}")
-    st.info("En aquesta pàgina pots introduir acabats de cada material introduït a la base de dades")
+    with st.popover("Explicació"):
+        st.info("En aquesta pàgina pots introduir els acabats de cada material introduït a la base de dades")
     col1, col2 = st.columns(2)
     with col1:
         conexio = sqlite3.connect(DB_FILE)
@@ -339,7 +465,8 @@ def pantalla_auxiliars_acabats(DB_FILE, opcio):
 
 def pantalla_auxiliars_proveidors (DB_FILE, opcio):
     st.title(f"Introduir {opcio}")
-    st.info("En aquesta pàgina pots introduir proveïdors de xapa a la base de dades")
+    with st.popover("Explicació"):
+        st.info("En aquesta pàgina pots introduir proveïdors de xapa a la base de dades")
     col1, col2 = st.columns(2)
     with col1:
         with st.form(f"Auxiliar {opcio}", clear_on_submit=False, enter_to_submit=False):
@@ -567,7 +694,15 @@ def main():
     }
     if opcio in pantalles:
         pantalles[opcio](DB_FILE, opcio)
-    
+    else:
+        st.title("Funcions auxiliars del programa")
+        st.space("medium")
+        st.write("""En aquest apartat pot seleccionar les diferents opcions a la barra lateral.
+                    \n - Iniciar valors
+                    \n - Afegir materials
+                    \n - Afegir qualitats als material
+                    \n - Afegir acabats als materials
+                    \n - Afegir proveïdors de xapa""")
     
 
 # ---- INICIALITZACIÓ PROGRAMA ----

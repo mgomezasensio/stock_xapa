@@ -143,19 +143,33 @@ def pantalla_consulta_valor_stock(DB_FILE, opcio):
         st.error("No s'ha trobat cap resultat amb aquests filtres")
         return
     
-    st.metric("Valor (€)", f"{round(df.Valor.sum(), 2)} €")
+    df["Xapa"] = (
+        df["Material"] + " " +
+        df["Qualitat"] + " " +
+        df["Acabat"] + " " +
+        df["Espesor"].astype(str) + " mm" )
+    
+    st.metric("Valor stock", f"{round(df.Valor.sum(), 2)} €")
     
     col1, col2 = st.columns(2)
     fig = px.histogram(df, x='Material', y='Valor', color="Qualitat", barmode="group")
+    fig.update_layout(title='Valor del material en stock', yaxis_title='Valor ( € )')
     fig2 = px.bar(df, x='Material', y='Valor', color="Qualitat", text="Acabat")
+    fig2.update_layout(title='Valor del material en stock', yaxis_title='Valor ( € )')
     fig3 = px.pie(df, values="Quantitat", names="Material")
+    fig3.update_layout(title='Distribució per quantitats per material')
     fig4 = px.pie(df, values="Pes", names="Material")
+    fig4.update_layout(title='Distribució per pesos per material')
+    fig5 = px.histogram(df, x='Pes', y='Xapa', color='Material')
+    fig5.update_layout(title='Distribució per pesos per xapa', xaxis_title='Pes ( Kg )')
+    fig5.update_xaxes(showgrid=True)
     with col1:
         st.plotly_chart(fig, width='stretch')
         st.plotly_chart(fig3, width='stretch')
     with col2:
         st.plotly_chart(fig2, width='stretch')
         st.plotly_chart(fig4, width='stretch')
+    st.plotly_chart(fig5, width='stretch')
     
 def pantalla_evolucio_preus(DB_FILE, opcio):
     st.title(opcio)
@@ -191,7 +205,8 @@ def pantalla_evolucio_preus(DB_FILE, opcio):
     df = df[['Xapa', 'Proveidor', 'PreuKg', 'Data']]
     st.dataframe(df, hide_index=True)
     fig = px.line(df, x="Data", y="PreuKg", title='Evolució del preu de les xapes',
-                  color="Xapa", markers=True)
+                  color="Xapa", markers=True, labels={"PreuKg":"Preu / Kg ( € )"})
+    fig.update_xaxes(showgrid=True)
     st.plotly_chart(fig, width='stretch')
 
 # ---- FUNCIONS DEL PROGRAMA ----
@@ -220,6 +235,13 @@ def main():
         }
     if opcio in pantalles:
         pantalles[opcio](DB_FILE, opcio)
+    else:
+        st.title("Consultes")
+        st.space('medium')
+        st.write("""En aquest apartat pots consultar les dades seleccionant les opcions de la barra lateral.
+                    \n - Consultar el stock disponible actualitzat en temps real
+                    \n - Consultar el valor del stock disponible
+                    \n - Visualtzar l'evolució del preu de les xapes""")
 
 # ---- INICIALITZACIÓ PROGRAMA ----
 

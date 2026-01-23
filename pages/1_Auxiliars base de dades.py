@@ -325,7 +325,12 @@ def pantalla_iniciar_valors(DB_FILE, opcio):
         with col1:
             st.write('Crea un joc de dades generat amb IA')
             if st.button("Iniciar joc de dades"):
-                crear_joc_dades(DB_FILE)
+                try:
+                    crear_joc_dades(DB_FILE)
+                except sqlite3.IntegrityError:
+                    st.error("El joc de dades ja està creat")
+                    time.sleep(3)
+                    st.rerun()
         with col2:
             st.write('Elimina les dades de la base de dades')
             if "confirmar_eliminar" not in st.session_state:

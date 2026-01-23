@@ -598,6 +598,8 @@ def auxiliar_material(DB_FILE, material, densitat):
         st.rerun()
     except sqlite3.IntegrityError:
         st.error(f"El material {material} ja està creat")
+        time.sleep(3)
+        st.rerun()
         return
     finally:
         conexio.close()
@@ -620,6 +622,8 @@ def auxiliar_qualitat(DB_FILE, material, codi_material, qualitat):
         st.rerun()
     except sqlite3.IntegrityError:
         st.error(f"La qualitat {qualitat} del material {material} ja està creada")
+        time.sleep(3)
+        st.rerun()
         return
     finally:
         conexio.close()
@@ -642,6 +646,8 @@ def auxiliar_acabats(DB_FILE, material, codi_material, acabat):
         st.rerun()
     except sqlite3.IntegrityError:
         st.error(f"L'acabat {acabat} del material {material} ja està creat")
+        time.sleep(3)
+        st.rerun()
         return
     finally:
         conexio.close()
@@ -663,6 +669,8 @@ def auxiliar_proveidor(DB_FILE, proveidor):
         st.rerun()
     except sqlite3.IntegrityError:
         st.error(f"El proveïdor {proveidor} ja està creat")
+        time.sleep(3)
+        st.rerun()
         return
     finally:
         conexio.close()
